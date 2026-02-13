@@ -107,3 +107,7 @@ body.dark .dropdownItem:hover {
   padding: 10px;
   font-size: 13px;
 }
+.loadingText {
+  font-size: 14px;
+  opacity: 0.8;
+}

@@ -12,17 +12,27 @@ function App() {
   const [mode, setMode] = useState("live");
   const [customHour, setCustomHour] = useState(12);
   const [theme, setTheme] = useState("light");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.body.className = theme;
   }, [theme]);
 
   const handlePredict = async (lat, lon) => {
-    const now = new Date();
-    const hour = mode === "live" ? now.getHours() : parseInt(customHour);
-    const day = now.getDay() || 7;
-    const value = await getTrafficPrediction(hour, day, lat, lon);
-    setTraffic(value);
+    try {
+      setLoading(true);
+
+      const now = new Date();
+      const hour = mode === "live" ? now.getHours() : parseInt(customHour);
+      const day = now.getDay() || 7;
+
+      const value = await getTrafficPrediction(hour, day, lat, lon);
+      setTraffic(value);
+    } catch (error) {
+      console.error("Prediction error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearchChange = async (text) => {
@@ -57,7 +67,6 @@ function App() {
     <div className="app">
       <div className="topBarHeader">
         <h1 className="title">FluxLane</h1>
-
         <button
           className="themeToggle"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -106,7 +115,9 @@ function App() {
           />
         )}
 
-        {traffic !== null && (
+        {loading && <div className="loadingText">Waking server...</div>}
+
+        {!loading && traffic !== null && (
           <div className="trafficTag">Traffic: {traffic}%</div>
         )}
       </div>
@@ -114,14 +125,14 @@ function App() {
       <MapView traffic={traffic} position={position} theme={theme} />
 
       <div className="footerCredit">
-        made with ❤️ by{" "}
+        Made with ❤️ by{" "}
         <a
           href="https://actualmayank.github.io/"
           target="_blank"
           rel="noopener noreferrer"
           className="portfolioLink"
         >
-          mayank
+          Mayank
         </a>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export const getTrafficPrediction = async (hour, day, lat, lon) => {
-  const res = await axios.get(`http://127.0.0.1:8000/predict?hour=${hour}&day=${day}&zone=1`);
+  const res = await axios.get(`https://fluxlane.onrender.com`);
   return res.data.traffic_level;
 };

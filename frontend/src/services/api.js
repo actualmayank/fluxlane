@@ -2,7 +2,9 @@ import axios from "axios";
 
 const BASE_URL = "https://fluxlane.onrender.com";
 
-export const getTrafficPrediction = async (hour, day, zone) => {
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const getTrafficPrediction = async (hour, day, zone = 1) => {
   try {
     const response = await axios.get(
       `${BASE_URL}/predict`,
@@ -16,14 +18,17 @@ export const getTrafficPrediction = async (hour, day, zone) => {
 
   } catch (error) {
 
-    if (error.code === "ECONNABORTED") {
-      throw new Error("Server is waking up. Please try again in a few seconds.");
-    }
+    // Retry once after 5 seconds (handles cold start)
+    await wait(5000);
 
-    if (error.response) {
-      throw new Error("Server error. Please try again.");
-    }
+    const retryResponse = await axios.get(
+      `${BASE_URL}/predict`,
+      {
+        params: { hour, day, zone },
+        timeout: 60000
+      }
+    );
 
-    throw new Error("Network error. Check your connection.");
+    return retryResponse.data.traffic_level;
   }
 };

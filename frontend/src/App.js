@@ -13,6 +13,7 @@ function App() {
   const [customHour, setCustomHour] = useState(12);
   const [theme, setTheme] = useState("light");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     document.body.className = theme;
@@ -21,15 +22,18 @@ function App() {
   const handlePredict = async (lat, lon) => {
     try {
       setLoading(true);
+      setError(null);
 
       const now = new Date();
       const hour = mode === "live" ? now.getHours() : parseInt(customHour);
       const day = now.getDay() || 7;
 
-      const value = await getTrafficPrediction(hour, day, lat, lon);
+      const value = await getTrafficPrediction(hour, day, 1);
       setTraffic(value);
-    } catch (error) {
-      console.error("Prediction error:", error);
+
+    } catch (err) {
+      setError("Unable to fetch traffic data. Please try again.");
+      setTraffic(null);
     } finally {
       setLoading(false);
     }
@@ -60,13 +64,16 @@ function App() {
   };
 
   const handleSearchClick = () => {
-    if (results.length > 0) selectLocation(results[0]);
+    if (results.length > 0) {
+      selectLocation(results[0]);
+    }
   };
 
   return (
     <div className="app">
       <div className="topBarHeader">
         <h1 className="title">FluxLane</h1>
+
         <button
           className="themeToggle"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -117,8 +124,14 @@ function App() {
 
         {loading && <div className="loadingText">Waking server...</div>}
 
-        {!loading && traffic !== null && (
-          <div className="trafficTag">Traffic: {traffic}%</div>
+        {!loading && error && (
+          <div className="errorText">{error}</div>
+        )}
+
+        {!loading && !error && traffic !== null && (
+          <div className="trafficTag">
+            Traffic: {traffic}%
+          </div>
         )}
       </div>
 

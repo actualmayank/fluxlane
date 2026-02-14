@@ -145,7 +145,7 @@ function App() {
           rel="noopener noreferrer"
           className="portfolioLink"
         >
-          Mayank
+          mayank.
         </a>
       </div>
     </div>
